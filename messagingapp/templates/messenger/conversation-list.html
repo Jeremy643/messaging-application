@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block scripts %}
+{% endblock %}
+
+{% block title %}Messenger{% endblock %}
+
+{% block content %}
+<h1 class="display-1">Conversation List</h1>
+<hr class="mt-0 mb-4">
+
+<div class="container mb-4">
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newMessage"><i
+            class="fas fa-plus"></i> New Message</button>
+
+    <div class="modal fade" id="newMessage" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="newMessageLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newMessageLabel">New Message</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ form.recipient.label(class="form-control-label") }}
+
+                            {% if form.recipient.errors %}
+                            <script>
+                                $(document).ready(function () {
+                                    $("#newMessage").modal("show");
+                                });
+                            </script>
+                            {{ form.recipient(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.recipient.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.recipient(class="form-control form-control-lg") }}
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.message.label(class="form-control-label") }}
+
+                            {% if form.message.errors %}
+                            <script>
+                                $(document).ready(function () {
+                                    $("#newMessage").modal("show");
+                                });
+                            </script>
+                            {{ form.message(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.message.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.message(class="form-control form-control-lg") }}
+                            {% endif %}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary"
+                                data-bs-dismiss="modal">Close</button>
+                            <div class="form-group">
+                                {{ form.send(class="btn btn-outline-success") }}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="list-group">
+    {% for conv in context.conversations %}
+    <a href="{{ url_for('messenger.conversation', conv_id=conv.id) }}" class="list-group-item list-group-item-action">
+        <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">
+                {% for user in conv.users %}
+                    {% if user.username != current_user.username %}
+                        {{ user.username }}
+                    {% endif %}
+                {% endfor %}
+            </h5>
+            <small class="text-muted">
+                {% if (context.time_now - conv.messages[-1].date_sent).total_seconds() >= 86400 %}
+                    {{ conv.messages[-1].date_sent.strftime("%x") }}
+                {% else %}
+                    {{ conv.messages[-1].date_sent.strftime("%X") }}
+                {% endif %}
+            </small>
+        </div>
+        <p class="last-message-description mb-1">{{ conv.messages[-1].message }}</p>
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}

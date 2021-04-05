@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='conversation-script.js') }}" type="text/javascript"></script>
+{% endblock %}
+
+{% block title %}Messages - {{ context.recipient.username }}{% endblock %}
+
+{% block content %}
+<div class="container mt-3" id="message-display">
+    {% for msg in context.conv.messages %}
+        {% if current_user.id == msg.sender_id %}
+            <p>You> {{ msg.message }}</p>
+        {% else %}
+            <p>{{ context.recipient.username }}> {{ msg.message }}</p>
+        {% endif %}
+    {% endfor %}
+</div>
+
+<div class="container" id="send-message-bar">
+    <form method="POST" action="">
+        {{ context.form.hidden_tag() }}
+        
+        <div class="input-group mt-3 mb-3">
+            {% if context.form.message.errors %}
+                {{ context.form.message(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in context.form.message.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ context.form.message(class="form-control form-control-lg") }}
+            {% endif %}
+
+            <button type="submit" class="btn btn-success" title="Send message" id="submitMessage"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </form>
+</div>
+{% endblock %}
